@@ -1,5 +1,12 @@
 import config from "../config.js";
 
+class ProductDTO {
+  constructor(product) {
+    this.product = product;
+    // this.product.title = this.product.title.toUpperCase(); 
+  }
+}
+
 class ProductManagerClass {
 
   constructor(service) {
@@ -29,7 +36,8 @@ class ProductManagerClass {
   };
   updateProductById = async (pid, latestProduct) => {
     try {
-      return await this.service.updateProductById(pid, latestProduct);
+      let normalizedProduct = new ProductDTO(latestProduct);
+      return await this.service.updateProductById(pid, normalizedProduct);
     } catch (error) {
       return { origin: config.SERVER, error: `[ERROR ${error}]: No fue posible conectarse al servicio.`}
     }
