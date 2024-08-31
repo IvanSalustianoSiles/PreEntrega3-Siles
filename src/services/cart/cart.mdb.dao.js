@@ -56,7 +56,7 @@ class CartMDBClass {
   };
   getProductsOfACart = async (cid) => {
     try {
-      let cart = this.getCartById(cid);
+      let cart = await this.getCartById(cid);
       let products = await cart.products.map(product => {
         let fixedProduct = { ...product._id, quantity: product.quantity };
         return fixedProduct;
@@ -69,12 +69,13 @@ class CartMDBClass {
   deleteProduct = async (pid, cid) => {
     try {
       if (pid && cid) {
+
         let myCart = await this.model.findById(cid);
+        
         if (myCart) {
-          let myProduct = myCart["products"].find(
-            (product) => product._id == pid
-          );
-          if (myProduct) {
+          let myProducts = await this.getProductsOfACart(cid);
+          let myProduct = await myProducts.find(product => product._id == JSON.parse(JSON.stringify(pid)));
+          if (myProduct && myProduct != undefined) {
             await this.model.findByIdAndUpdate(
               { _id: cid },
               { $pull: { products: { _id: pid } } }
@@ -125,13 +126,17 @@ class CartMDBClass {
   updateQuantity = async (pid, cid, objectQuantity) => {
     try {
       if (pid && cid && objectQuantity) {
+        
         let myCart = await this.model.findById(cid);
         if (myCart) {
           let myProduct = myCart["products"].find(
-            (product) => product._id == pid
+            (product) => product._id == JSON.parse(JSON.stringify(pid))
           );
+          
           if (myProduct) {
+            
             myProduct["quantity"] = objectQuantity.quantity;
+
             await this.model.findOneAndUpdate(
               { _id: cid, "products._id": pid },
               { $set: { "products.$.quantity": myProduct.quantity } }

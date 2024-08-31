@@ -7,10 +7,10 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const users = await UserManager.paginateUsers(
+    const users = await UserManager.paginateUsers([
       { role: "user" },
       { page: 1, limit: 10 }
-    );
+    ]);
     res.send({ status: 1, payload: users || "Lo sentimos, ha ocurrido un error al intentar recibir los usuarios." });
   } catch (error){
     res.status(500).send({
@@ -35,7 +35,7 @@ router.put("/:id", verifyMDBID(["id"]), async (req, res) => {
     const update = req.body;
     const options = { new: true };
     const process = await UserManager.updateUser(filter, update, options);
-    res.status(200).send({ origin: config.SERVER, payload: process || "Error de base de datos. Estamos trabajando en ello" });
+    res.status(200).send({ origin: config.SERVER, payload: process || "[ERROR 500]: Estamos trabajando en ello." });
   } catch (error) {
     res.status(500).send({
       origin: config.SERVER,

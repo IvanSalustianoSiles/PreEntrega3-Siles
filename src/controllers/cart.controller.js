@@ -1,5 +1,5 @@
 import config from "../config.js";
-
+import { CartFSService, CartMDBService } from "../services/index.js";
 class CartManagerClass {
   
   constructor(service) {
@@ -68,12 +68,12 @@ class CartManagerClass {
     } catch (error) {
       return { origin: config.SERVER, error: `[ERROR ${error}]: No fue posible conectarse al servicio.`}
     }
-  }
+  };
 };
 
 const service = config.DATA_SOURCE == "MDB" 
-? await import("../services/cart/cart.mdb.dao.js") 
-: await import("../services/cart/cart.fs.dao.js");
+? CartMDBService
+: CartFSService;
 
 const CartManager = new CartManagerClass(service);
 

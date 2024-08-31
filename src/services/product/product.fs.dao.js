@@ -6,64 +6,76 @@ import { generateRandomId } from "../utils.js";
 class ProductFSClass {
   constructor() {
     this.productsArray = [];
-    this.path = `./../jsons/product.json`;
+    this.path = `../../jsons/product.json`;
     this.getting = false;
-  };
-  getAllProducts = async (limit = "10", page = "1", query, sort, available, where) => {
+  }
+  getAllProducts = async (limit = 10, page = 1, query, sort, available, where) => {
     this.getting = true;
     this.readFileAndSave();
     this.productsArray;
-    let matrixProducts = []
+    let matrixProducts = [];
     let j = 0;
     matrixProducts.push([]);
 
-    query ? this.productsArray = this.productsArray.filter(product => product.category == query) : this.productsArray;
-    
-    available == "true" ? this.productsArray = this.productsArray.filter(product => product.stock > 0) 
-    : available == "false" ? this.productsArray = this.productsArray.filter(product => product.stock == 0)
-    : this.productsArray; 
-    
-    sort == "1" ? this.productsArray.sort((a, b) => a.price - b.price)
-    : sort == "-1" ? this.productsArray.sort((a, b) => b.price - a.price)
-    : this.productsArray;
+    query
+      ? (this.productsArray = this.productsArray.filter(
+          (product) => product.category == query
+        ))
+      : this.productsArray;
+
+    available == "true"
+      ? (this.productsArray = this.productsArray.filter(
+          (product) => product.stock > 0
+        ))
+      : available == "false"
+      ? (this.productsArray = this.productsArray.filter(
+          (product) => product.stock == 0
+        ))
+      : this.productsArray;
+
+    sort == 1
+      ? this.productsArray.sort((a, b) => a.price - b.price)
+      : sort == -1
+      ? this.productsArray.sort((a, b) => b.price - a.price)
+      : this.productsArray;
 
     for (let i = 0; i <= this.productsArray.length; i++) {
-        if (i == 0 || !(i % limit == 0)) {
-            matrixProducts[j].push(this.productsArray[i])
-        } else {
-            matrixProducts.push([]);
-            j++;
-            matrixProducts[j].push(this.productsArray[i]);
-        }
-    };
+      if (i == 0 || !(i % limit == 0)) {
+        matrixProducts[j].push(this.productsArray[i]);
+      } else {
+        matrixProducts.push([]);
+        j++;
+        matrixProducts[j].push(this.productsArray[i]);
+      }
+    }
 
-    const pageProducts = matrixProducts[+page - 1];
-    let prevPage = (+page == 1) ? undefined : +page - 1;
-    let nextPage = !matrixProducts[+page] ? undefined : +page + 1;
+    const pageProducts = matrixProducts[page - 1];
+    let prevPage = page == 1 ? undefined : page - 1;
+    let nextPage = !matrixProducts[page] ? undefined : page + 1;
     let prevUrl;
     let nextUrl;
 
     if (query) {
-        prevPage
-          ? (prevUrl = `${where}?query=${query}&page=${prevPage}&limit=${limit}&sort=${sort}&available=${available}`)
-          : null;
-        nextPage
-          ? (nextUrl = `${where}?query=${query}&page=${nextPage}&limit=${limit}&sort=${sort}&available=${available}`)
-          : null;
+      prevPage
+        ? (prevUrl = `${where}?query=${query}&page=${prevPage}&limit=${limit}&sort=${sort}&available=${available}`)
+        : null;
+      nextPage
+        ? (nextUrl = `${where}?query=${query}&page=${nextPage}&limit=${limit}&sort=${sort}&available=${available}`)
+        : null;
     } else {
-        prevPage
-          ? (prevUrl = `${where}?page=${prevPage}&limit=${limit}&sort=${sort}&available=${available}`)
-          : null;
-        nextPage
-          ? (nextUrl = `${where}?page=${nextPage}&limit=${limit}&sort=${sort}&available=${available}`)
-          : null;
-    };
+      prevPage
+        ? (prevUrl = `${where}?page=${prevPage}&limit=${limit}&sort=${sort}&available=${available}`)
+        : null;
+      nextPage
+        ? (nextUrl = `${where}?page=${nextPage}&limit=${limit}&sort=${sort}&available=${available}`)
+        : null;
+    }
     this.getting = false;
     return {
-        status: "success",
-        payload: pageProducts,
-        prevLink: prevUrl,
-        nextLink: nextUrl,
+      status: "success",
+      payload: pageProducts,
+      prevLink: prevUrl,
+      nextLink: nextUrl,
     };
   };
   addProducts = async (...products) => {
@@ -74,7 +86,7 @@ class ProductFSClass {
       for (let i = 0; i <= products.length; i++) {
         let product = products[i];
         let myId = generateRandomId();
-        while (this.productsArray.some(product => product._id == myId)) {
+        while (this.productsArray.some((product) => product._id == myId)) {
           myId = generateRandomId();
         }
         let newProduct = {
@@ -86,7 +98,7 @@ class ProductFSClass {
           category: product.category,
           status: product.status,
           thumbnail: product.thumbnail,
-          _id: myId
+          _id: myId,
         };
         if (
           Object.keys(newProduct).includes(undefined) ||
@@ -108,20 +120,22 @@ class ProductFSClass {
           };
 
         newProducts.push(newProduct);
-      };
+      }
       this.productsArray.push(...newProducts);
       this.updateFile(this.productsArray);
       return this.productsArray;
     } catch (error) {
       return `[ERROR ${error}]: Error al agregar los productos solicitados.`;
-    };
+    }
   };
   getProductById = async (id) => {
     this.getting = true;
     this.readFileAndSave();
-    let gottenProduct = await this.productsArray.find((product) => product._id == id);
+    let gottenProduct = await this.productsArray.find(
+      (product) => product._id == id
+    );
     if (gottenProduct) {
-    this.getting = false;
+      this.getting = false;
       return gottenProduct;
     } else {
       return `[ERROR: ${error}]: Lo sentimos, ha ocurrido un error al intentar encontrar el producto de ID '${pid}'.`;
@@ -130,19 +144,39 @@ class ProductFSClass {
   updateProductById = async (pid, latestProduct = {}) => {
     try {
       this.readFileAndSave();
-      const oldProduct = this.productsArray.find(product => product._id == pid);
-      if (!oldProduct) return `[ERROR]: Producto para actualizar no encontrado.`;
+      const oldProduct = this.productsArray.find(
+        (product) => product._id == pid
+      );
+      if (!oldProduct)
+        return `[ERROR]: Producto para actualizar no encontrado.`;
+      let testProduct = {
+        title: latestProduct.title,
+        description: latestProduct.description,
+        price: latestProduct.price,
+        code: latestProduct.code,
+        stock: latestProduct.stock,
+        category: latestProduct.category,
+        status: latestProduct.status,
+        thumbnail: latestProduct.thumbnail,
+      };
       for (let i = 0; i <= 7; i++) {
-        if (Object.values(latestProduct)[i] == "") {
+        if (
+          Object.values(testProduct)[i] !== 0 &&
+          (Object.values(testProduct)[i] == "" ||
+            Object.values(testProduct)[i] == undefined)
+        ) {
           let oldValue = Object.values(oldProduct)[i + 1];
-          let myProp = Object.keys(latestProduct)[i];
-          latestProduct = { ...latestProduct, [myProp]: oldValue, _id: generateRandomId() };
+          let myProp = Object.keys(testProduct)[i];
+          testProduct = { ...testProduct, [myProp]: oldValue };
         }
       }
+      testProduct = { ...testProduct, _id: generateRandomId() };
       let oldIndex = this.productsArray.indexOf(oldProduct);
-      this.productsArray.splice(oldIndex, 1, latestProduct);
+      this.productsArray.splice(oldIndex, 1, testProduct);
       this.updateFile(this.productsArray);
-      let updatedProduct = this.productsArray.find(product => product._id == latestProduct._id)
+      let updatedProduct = this.productsArray.find(
+        (product) => product._id == testProduct._id
+      );
       return updatedProduct;
     } catch (error) {
       return `[ERROR: ${error}]: Error al intentar actualizar el producto.`;
@@ -150,15 +184,18 @@ class ProductFSClass {
   };
   deleteProductById = async (pid) => {
     try {
-        this.readFileAndSave();
-        let toDeleteProduct = await this.productsArray.find(product => product._id == pid);
-        if (!toDeleteProduct) return `[ERROR]: No se encontró el producto que coincida con la ID "${pid}".`;
-        const forDeleteIndex = this.productsArray.indexOf(toDeleteProduct);
-        this.productsArray.splice(forDeleteIndex, 1);
-        this.updateFile(this.productsArray);
-        return `Producto de ID '${pid}' eliminado.`;
+      this.readFileAndSave();
+      let toDeleteProduct = await this.productsArray.find(
+        (product) => product._id == pid
+      );
+      if (!toDeleteProduct)
+        return `[ERROR]: No se encontró el producto que coincida con la ID "${pid}".`;
+      const forDeleteIndex = this.productsArray.indexOf(toDeleteProduct);
+      this.productsArray.splice(forDeleteIndex, 1);
+      this.updateFile(this.productsArray);
+      return `Producto de ID '${pid}' eliminado.`;
     } catch (error) {
-        return `[ERROR ${error}]: Producto de ID '${pid}' eliminado.`;
+      return `[ERROR ${error}]: Producto de ID '${pid}' eliminado.`;
     }
   };
   updateFile = async (array) => {
@@ -174,7 +211,7 @@ class ProductFSClass {
     }
     return this.productsArray;
   };
-};
+}
 
 // Productos de ejemplo para agregar y probar el algoritmo.
 const [product1, product2, product3, productCambiado] = myProducts;

@@ -23,7 +23,7 @@ class UserMDBClass {
     } catch (error) {
       console.log(`[ERROR: ${error}]: Error al cortejar los datos de usuario con el token.`);
     };
-  }
+  };
   findUser = async (emailValue) => {
     try {
       let myUser = await usersModel.find({ email: emailValue }).lean();
@@ -57,18 +57,19 @@ class UserMDBClass {
       console.log(`[ERROR: ${error}]: Error al eliminar el usuario en la base de datos.`);
     }
   };
-  paginateUsers = async (...filters) => {
+  paginateUsers = async (filters) => {
     try {
       const dbUsers = await this.model.paginate(...filters);
       return dbUsers;
     } catch (error) {
       console.log(`[ERROR: ${error}]: Error al paginar los usuarios desde la base de datos.`);
     }
-  }
+  };
 };
 
 // Métodos a utilizar:
 // isRegistered (focusRoute, returnObject, req, res)
+// isRegisteredwToken (focusRoute, returnObject, req, res)
 // findUser (emailValue)
 // addUser (user)
 // updateUser (filter, update, options)

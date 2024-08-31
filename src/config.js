@@ -16,6 +16,11 @@ CommandLine
   .option("--ghclientsecret <ghclientsecret>", "Secret del cliente de GitHub")
   .option("--ghcallbackurl <ghcallbackurl>", "Callback URL de GitHub")
   .option("--source <source>", "Fuente de datos: MDB o FS")
+  .option("--gmailpass <gmailpass>", "App password para Gmail")
+  .option("--gmailuser <gmailuser>", "Gmail de app")
+  .option("--twiliosid <twiliosid>", "ID de Tuilio")
+  .option("--twiliotoken <twiliotoken>", "Token de Tuilio")
+  .option("--twilionumber <twilionumber>", "Número de Tuilio")
 CommandLine.parse()
 
 export const CLOptions = CommandLine.opts();
@@ -24,7 +29,7 @@ const envPath = CLOptions.mode == "prod" ? "../environment/.env_production" : ".
 
 dotenv.config({ path: envPath }); 
 
-const { APP_NAME, PORT, SERVER, MONGO_URI, SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL, DATA_SOURCE } = process.env;
+const { APP_NAME, PORT, SERVER, MONGO_URI, SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL, DATA_SOURCE, GMAIL_APP_PASSWORD, GMAIL_APP_USER, TWILIO_SID, TWILIO_TOKEN, TWILIO_NUMBER } = process.env;
 process.on("exit", error => {
   if (error === -10) {
     console.log("[DATA_SOURCE_ERROR]: Debe ingresar sólo FS o MDB como --source.")
@@ -46,7 +51,12 @@ const config = {
   GITHUB_CLIENT_ID: CLOptions.ghclientid || GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET: CLOptions.ghclientsecret || GITHUB_CLIENT_SECRET,
   GITHUB_CALLBACK_URL: CLOptions.ghcallbackurl || GITHUB_CALLBACK_URL,
-  DATA_SOURCE: CLOptions.source || DATA_SOURCE
+  DATA_SOURCE: CLOptions.source || DATA_SOURCE,
+  GMAIL_APP_PASSWORD: CLOptions.gmailpass || GMAIL_APP_PASSWORD,
+  GMAIL_APP_USER: CLOptions.gmailuser || GMAIL_APP_USER,
+  TWILIO_SID: CLOptions.twiliosid || TWILIO_SID,  
+  TWILIO_TOKEN: CLOptions.twiliotoken || TWILIO_TOKEN,
+  TWILIO_NUMBER: CLOptions.twilionumber || TWILIO_NUMBER
 };
 
 export default config;

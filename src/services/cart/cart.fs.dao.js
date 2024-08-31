@@ -7,8 +7,8 @@ class CartFSClass {
   constructor() {
     this.cartsArray = [];
     this.productsArray = [];
-    this.cartPath = `./../jsons/cart.json`;
-    this.productPath = `./../jsons/product.json`;
+    this.cartPath = `../../jsons/cart.json`;
+    this.productPath = `../../jsons/product.json`;
     this.getting = false;
   };
   createCart() {

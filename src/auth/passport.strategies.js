@@ -23,9 +23,11 @@ const initAuthStrategies = () => {
       { passReqToCallback: true, usernameField: "email" },
       async (req, username, password, done) => {   
         try {
+          
           let myUser = await UserManager.findUser(username);
-  
+    
           const validation = isValidPassword(myUser, password);
+          
           if (myUser && validation) {
             return done(null, myUser);
           } else {

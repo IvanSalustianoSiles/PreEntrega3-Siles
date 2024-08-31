@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, default: "No specified" },
   description: { type: String, default: "No specified" },
   age: { type: Number },
-  cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" }
+  cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts", required: true }
 });
 
 userSchema.pre("find", function () {

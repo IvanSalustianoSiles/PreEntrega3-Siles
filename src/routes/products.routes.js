@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { uploader } from "../services/index.js";
 import { ProductManager } from "../controllers/index.js";
-import { verifyMDBID, catchCall } from "../services/index.js";
+import { verifyMDBID, catchCall, handlePolicies } from "../services/index.js";
 import config from "../config.js";
 
 let toSendObject = {};
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
     res.status(400).send({ origin: config.SERVER, error: `[ERROR: ${error}]`});
   }
 });
-router.get("/:pid", verifyMDBID(["pid"]), async (req, res) => {
+router.get("/:pid", handlePolicies(["ADMIN"]), verifyMDBID(["pid"]), async (req, res) => {
   try {
       toSendObject = await ProductManager.getProductById(req.params.pid);
       res.status(200).send(toSendObject);
@@ -32,7 +32,7 @@ router.get("/:pid", verifyMDBID(["pid"]), async (req, res) => {
     res.status(400).send({ origin: config.SERVER, error: `[ERROR: ${error}]`});
   }
 });
-router.post("/", uploader.single("thumbnail"), async (req, res) => {
+router.post("/", handlePolicies(["ADMIN"]), uploader.single("thumbnail"), async (req, res) => {
   try {
     toSendObject = await ProductManager.addProducts({
       ...req.body,
@@ -45,7 +45,7 @@ router.post("/", uploader.single("thumbnail"), async (req, res) => {
     res.status(400).send({ origin: config.SERVER, error: `[ERROR: ${error}]`});
   }
 });
-router.put("/:pid", verifyMDBID(["pid"]), async (req, res) => {
+router.put("/:pid", handlePolicies(["ADMIN"]), verifyMDBID(["pid"]), async (req, res) => {
   try {
     const { pid } = req.params;
     toSendObject = await ProductManager.updateProductById(pid, req.body);
@@ -54,7 +54,7 @@ router.put("/:pid", verifyMDBID(["pid"]), async (req, res) => {
     res.status(400).send({ origin: config.SERVER, error: `[ERROR: ${error}]`});
   }
 });
-router.delete("/:pid", verifyMDBID(["pid"]), async (req, res) => {
+router.delete("/:pid", handlePolicies(["ADMIN"]), verifyMDBID(["pid"]), async (req, res) => {
   try {
     const { pid } = req.params;
     toSendObject = await ProductManager.deleteProductById(pid);

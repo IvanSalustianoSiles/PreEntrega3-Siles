@@ -19,6 +19,7 @@ router.get("/welcome", (req, res) => {
   UserManager.isRegistered("index", user, req, res);
 });
 router.get("/products", async (req, res) => {
+  
   let paginated = await ProductManager.getAllProducts(
     req.query.limit,
     req.query.page,
@@ -27,6 +28,7 @@ router.get("/products", async (req, res) => {
     req.query.available,
     "/products"
   );
+  
   let toSendArray = paginated.payload.docs.map((product, index) => {
     const {
       title,

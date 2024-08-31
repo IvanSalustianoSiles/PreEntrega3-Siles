@@ -1,4 +1,16 @@
-import { config } from "dotenv";
+import config from "../config.js";
+import { UserMDBService, UserFSService } from "../services/index.js";
+
+class UserDTOCLass {
+  constructor() {
+  };
+  removeSensitive = async (user) => {
+    const { password, email, phoneNumber, ...filteredUser } = user;
+    return filteredUser;
+  };
+};
+
+const DTO = new UserDTOCLass();
 
 // Clase para controlar los métodos referentes a los usuarios.
 class UserManagerClass {
@@ -23,6 +35,15 @@ class UserManagerClass {
   findUser = async (emailValue) => {
     try {
       return await this.service.findUser(emailValue);
+    } catch (error) {
+      return { origin: config.SERVER, error: `[ERROR ${error}]: No fue posible conectarse al servicio.`}
+    }
+  };
+  findFilteredUser = async (emailValue) => {
+    try {
+      const foundUser = await this.service.findUser(emailValue);
+      const filteredUser = await DTO.removeSensitive(foundUser);
+      return filteredUser;
     } catch (error) {
       return { origin: config.SERVER, error: `[ERROR ${error}]: No fue posible conectarse al servicio.`}
     }
@@ -54,7 +75,7 @@ class UserManagerClass {
     } catch (error) {
       return { origin: config.SERVER, error: `[ERROR ${error}]: No fue posible conectarse al servicio.`}
     }
-  }
+  };
 };
 
 // Métodos a utilizar:
@@ -66,7 +87,10 @@ class UserManagerClass {
 // paginateUsers (...filters)
 
 
-const service = await import("../services/user/user.mdb.dao.js");
+// const service = await import("../services/user/user.mdb.dao.js");
+const service = config.DATA_SOURCE == "MDB" 
+? UserMDBService
+: UserFSService;
 
 const UserManager = new UserManagerClass(service);
 

@@ -6,11 +6,11 @@ export const catchCall = (router, text) => {
   return router.all("*", async (req, res) => {
     res.status(404).send({ origin: config.SERVER, error: `[ERROR: 404]: No se encontró la ruta de ${text} especificada.`});
   });
-}
+};
 export const createHash = (password) => {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 };
-export const isValidPassword = (user, password) => {
+export const isValidPassword = (user, password) => { 
   
   return bcrypt.compareSync(password, user.password);
 };
@@ -76,4 +76,33 @@ export const generateRandomId = () => {
     charArray.push(myChar);
   }
   return charArray.join("");
-}
+};
+export const handlePolicies = (policies) => {
+  return (req, res, next) => {
+    if (policies[0] === "PUBLIC") return next();
+    // let user = verifyAndReturnToken(req, res);
+    let user = req.session.user;
+    if (!user) return res.status(401).send({origin: config.SERVER, error: `[ERROR 401]: Usuario no autenticado.`});
+    let role = user.role.toUpperCase();
+    if (!policies.includes(role)) return res.status(403).send({origin: config.SERVER, error: `[ERROR 403]: Usuario no autorizado.`});
+    req.user = user;
+    next();
+  }
+};
+export const generateRandomCode = () => {
+  const possibleChars = "0123456789";
+  const charArray = [];
+  for (let i = 0; i < 12; i++) {
+    let randomIndex = Math.floor(Math.random() * possibleChars.length);
+    let myChar = possibleChars[randomIndex];
+    charArray.push(myChar);
+  }
+  return `C-${charArray.join("")}`;
+};
+export const generateDateAndHour = () => {
+  const now = new Date;
+  return now.toLocaleString();
+};
+
+
+

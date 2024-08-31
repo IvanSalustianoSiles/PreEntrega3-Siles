@@ -28,16 +28,6 @@ const verifyRole = (role) => {
     next();
   }
 };
-const handlePolicies = (policies) => {
-  return async (req, res, next) => {
-    if (policies[0] === "PUBLIC") return next();
-    let user = verifyAndReturnToken(req, res);
-    let role = user.role.toUpperCase();
-    if (!policies.includes(role)) return res.status(403).send({origin: config.SERVER, error: `[ERROR 403]: Usuario no autorizado.`});
-    req.user = user;
-    next();
-  }
-};
 initAuthStrategies();
 
 // Session routes
@@ -188,53 +178,52 @@ router.get("/logout", async (req, res) => {
 });
 router.get("/current", async (req, res) => {
   if (!req.session.user) return res.redirect("/pplogin");
-  const myUser = await UserManager.findUser(req.session.user.email);
+  const myUser = await UserManager.findFilteredUser(req.session.user.email);
   res.status(200).send({origin: config.SERVER, payload: myUser });
-})
-
+});
 // JWT Routes
-router.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { session: false, failureRedirect: `/jwtlogin?error=${encodeURI("Usuario y/o clave no válidos.")}` }), async (req, res) => {
-  try {
-    const token = createToken(req.user, '24h');
-    res.cookie(`${config.APP_NAME}_cookie`, token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true });
-    res.status(200).send({ origin: config.SERVER, payload: 'Usuario autenticado' });
+// router.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { session: false, failureRedirect: `/jwtlogin?error=${encodeURI("Usuario y/o clave no válidos.")}` }), async (req, res) => {
+//   try {
+//     const token = createToken(req.user, '24h');
+//     res.cookie(`${config.APP_NAME}_cookie`, token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true });
+//     res.status(200).send({ origin: config.SERVER, payload: 'Usuario autenticado' });
     
-} catch (error) {
-    res.status(500).send({ origin: config.SERVER, error: `[ERROR 500]: ${error}` });
-}
-});
-router.post("/jwtregister", verifyRequiredBody(["first_name", "last_name", "password", "email", "phoneNumber", "description", "age"]), passport.authenticate("register", { session: false, failureRedirect: `/jwtregister?error=${encodeURI("Email y/o contraseña no válidos.")}` }), async (req, res) => {
-  try {
-    const token = createToken(req.user, '24h');
-    res.cookie(`${config.APP_NAME}_cookie`, token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true });
-    res.status(200).send({ origin: config.SERVER, payload: 'Usuario autenticado' });
+// } catch (error) {
+//     res.status(500).send({ origin: config.SERVER, error: `[ERROR 500]: ${error}` });
+// }
+// });
+// router.post("/jwtregister", verifyRequiredBody(["first_name", "last_name", "password", "email", "phoneNumber", "description", "age"]), passport.authenticate("register", { session: false, failureRedirect: `/jwtregister?error=${encodeURI("Email y/o contraseña no válidos.")}` }), async (req, res) => {
+//   try {
+//     const token = createToken(req.user, '24h');
+//     res.cookie(`${config.APP_NAME}_cookie`, token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true });
+//     res.status(200).send({ origin: config.SERVER, payload: 'Usuario autenticado' });
     
-  } catch (error) {
-    res.status(500).send({ origin: config.SERVER, error: `[ERROR 500]: ${error}` });
-  }
-})
-router.get("/adminByjwt", passport.authenticate("jwtlogin", { session: false }), async (req, res) => {
-  try {
-    res.status(200).send({origin: config.SERVER, payload: "Bienvenido, admin."});
-  } catch (error) {
-    res.status(500).send({origin: config.SERVER, error: `[ERROR 500]: ${error}`});
-  }
-});
-router.get("/jwtlogout", passport.authenticate("jwtlogin", { session: false }), async (req, res) => {
-  try {
-    res.clearCookie(`${config.APP_NAME}_cookie`);
-    if (req.cookies[`${config.APP_NAME}_cookie`]) return res.status(500).send({
-      origin: config.SERVER,
-      error: `[ERROR 500]: Error al ejecutar logout.`,
-    });
-    res.redirect("/login");
-  } catch(error) {
-    res.status(500).send({
-      origin: config.SERVER,
-      error: `[ERROR 500]: ${error}`
-    });
-  }
-});
+//   } catch (error) {
+//     res.status(500).send({ origin: config.SERVER, error: `[ERROR 500]: ${error}` });
+//   }
+// })
+// router.get("/adminByjwt", passport.authenticate("jwtlogin", { session: false }), async (req, res) => {
+//   try {
+//     res.status(200).send({origin: config.SERVER, payload: "Bienvenido, admin."});
+//   } catch (error) {
+//     res.status(500).send({origin: config.SERVER, error: `[ERROR 500]: ${error}`});
+//   }
+// });
+// router.get("/jwtlogout", passport.authenticate("jwtlogin", { session: false }), async (req, res) => {
+//   try {
+//     res.clearCookie(`${config.APP_NAME}_cookie`);
+//     if (req.cookies[`${config.APP_NAME}_cookie`]) return res.status(500).send({
+//       origin: config.SERVER,
+//       error: `[ERROR 500]: Error al ejecutar logout.`,
+//     });
+//     res.redirect("/login");
+//   } catch(error) {
+//     res.status(500).send({
+//       origin: config.SERVER,
+//       error: `[ERROR 500]: ${error}`
+//     });
+//   }
+// });
 // router.get("/ghlogincallback", passport.authenticate("ghlogin", { failureRedirect: `/login?error=${encodeURI("Error de autenticación con GitHub")}` }), async (req, res) => {
 //   try {
 //     const token = createToken(req.user, '24h');
